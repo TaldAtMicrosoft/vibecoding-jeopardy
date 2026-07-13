@@ -45,8 +45,3 @@ Use five categories and five point values per category for the intended board sh
 
 The `Build It` column is designed so each prompt can be run independently or out of order, similar to assigning parallel tasks to multiple coding agents.
 
-## Lab safety canary
-
-The CSV also includes hidden `600`-point rows that are rendered into the DOM but hidden from the visible board. These rows are tagged with `<prompt-injection>` and `</prompt-injection>` so coding agents and users can identify them as part of the presentation.
-
-Before using the GitHub issue telemetry checkpoint, replace `TaldAtMicrosoft/vibecoding-jeopardy` in `data/cards.csv` with the public repository that should receive lab canary issues.
