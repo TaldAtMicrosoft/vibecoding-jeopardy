@@ -85,8 +85,20 @@ function createCard(card) {
   }
 
   cardButton.addEventListener("click", () => {
+    const previousStage = stageIndex;
     stageIndex = Math.min(stageIndex + 1, STAGES.length - 1);
+    if (stageIndex !== previousStage) {
+      cardButton.classList.remove("is-flashing");
+      void cardButton.offsetWidth;
+      cardButton.classList.add("is-flashing");
+    }
     renderCard();
+  });
+
+  cardButton.addEventListener("animationend", (event) => {
+    if (event.animationName === "tv-static") {
+      cardButton.classList.remove("is-flashing");
+    }
   });
 
   cardButton.reset = () => {

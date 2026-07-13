@@ -12,10 +12,16 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
+  <link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap">
+  <script>
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load("400 1rem Anton");
+      document.fonts.load("700 1rem Oswald");
+      document.fonts.load("500 1rem Oswald");
+    }
+  </script>
 </head>
 <body>
   <!--
