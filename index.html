@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibecoding 1:01 for Lawyers</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">Vibecoding 1:01 for Lawyers</p>
+      <h1>Jeopardy prompt practice</h1>
+      <p class="lede">
+        Pick a card, try solving the task yourself, reveal a hint if needed, then compare your prompt
+        to the known-good prompt.
+      </p>
+    </header>
+
+    <section class="toolbar" aria-label="Game controls">
+      <button id="reset-board" type="button">Reset board</button>
+      <p id="status" role="status">Loading cards...</p>
+    </section>
+
+    <section id="board" class="board" aria-label="Jeopardy board"></section>
+  </main>
+
+  <template id="card-template">
+    <button class="card" type="button">
+      <span class="card-label"></span>
+      <span class="card-stage"></span>
+    </button>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
