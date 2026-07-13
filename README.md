@@ -1,4 +1,4 @@
-# Vibecoding 1:01 Jeopardy
+# Vibecoding 101 Jeopardy
 
 A simple GitHub Pages-ready Jeopardy-style teaching site. Cards are loaded from `data/cards.csv`, so the CSV acts as the lightweight backend for the board.
 
