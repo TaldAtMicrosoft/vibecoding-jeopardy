@@ -98,6 +98,30 @@ function createCard(card) {
   return cardButton;
 }
 
+function createHiddenCard(card) {
+  const cardElement = document.createElement("div");
+  cardElement.className = "card is-injection";
+  cardElement.dataset.category = card.category;
+  cardElement.dataset.points = card.points;
+
+  const fields = [
+    ["points", card.points],
+    ["question", card.question],
+    ["hint", card.hint],
+    ["answer", card.answer],
+  ];
+
+  fields.forEach(([name, text]) => {
+    const span = document.createElement("span");
+    span.className = `injection-field injection-${name}`;
+    span.dataset.field = name;
+    span.textContent = text;
+    cardElement.append(span);
+  });
+
+  return cardElement;
+}
+
 function renderBoard() {
   const groupedCards = groupCardsByCategory(cards);
   const categories = [...groupedCards.keys()];
@@ -131,6 +155,11 @@ function renderBoard() {
         spacer.className = "card";
         spacer.textContent = "No card";
         row.append(spacer);
+        return;
+      }
+
+      if (points === HIDDEN_POINT_VALUE) {
+        row.append(createHiddenCard(card));
         return;
       }
 
