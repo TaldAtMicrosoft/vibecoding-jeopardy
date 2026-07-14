@@ -78,10 +78,11 @@
   </main>
 
   <template id="card-template">
-    <button class="card" type="button">
+    <div class="card" role="button" tabindex="0">
       <span class="card-label"></span>
       <span class="card-stage"></span>
-    </button>
+      <button class="card-copy" type="button" hidden>Copy prompt</button>
+    </div>
   </template>
 
   <script src="script.js"></script>

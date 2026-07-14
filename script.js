@@ -67,6 +67,7 @@ function createCard(card) {
   const cardButton = cardTemplate.content.firstElementChild.cloneNode(true);
   const label = cardButton.querySelector(".card-label");
   const stage = cardButton.querySelector(".card-stage");
+  const copyButton = cardButton.querySelector(".card-copy");
   let stageIndex = 0;
 
   function renderCard() {
@@ -75,16 +76,19 @@ function createCard(card) {
     cardButton.classList.toggle("is-revealed", stageIndex > 0);
     cardButton.classList.toggle("is-complete", stageIndex === STAGES.length - 1);
 
+    const atAnswer = stageName === "answer";
+    copyButton.hidden = !atAnswer;
+
     if (stageName === "points") {
       label.textContent = `${card.points}`;
       stage.textContent = "Click to reveal";
     } else {
       label.textContent = card[stageName];
-      stage.textContent = stageName === "answer" ? "Known-good prompt" : stageName;
+      stage.textContent = atAnswer ? "Known-good prompt" : stageName;
     }
   }
 
-  cardButton.addEventListener("click", () => {
+  function advance() {
     const previousStage = stageIndex;
     stageIndex = Math.min(stageIndex + 1, STAGES.length - 1);
     if (stageIndex !== previousStage) {
@@ -93,6 +97,42 @@ function createCard(card) {
       cardButton.classList.add("is-flashing");
     }
     renderCard();
+  }
+
+  cardButton.addEventListener("click", (event) => {
+    if (event.target.closest(".card-copy")) {
+      return;
+    }
+    advance();
+  });
+
+  cardButton.addEventListener("keydown", (event) => {
+    if (event.target.closest(".card-copy")) {
+      return;
+    }
+    if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+      event.preventDefault();
+      advance();
+    }
+  });
+
+  copyButton.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    const original = "Copy prompt";
+    try {
+      await navigator.clipboard.writeText(card.answer);
+      copyButton.textContent = "Copied!";
+    } catch (error) {
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      copyButton.textContent = "Selected — press Ctrl+C";
+    }
+    window.setTimeout(() => {
+      copyButton.textContent = original;
+    }, 1600);
   });
 
   cardButton.addEventListener("animationend", (event) => {

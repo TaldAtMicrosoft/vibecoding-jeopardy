@@ -307,6 +307,37 @@ h1 {
   font-size: 0.96rem;
   line-height: 1.4;
   letter-spacing: 0;
+  user-select: text;
+  cursor: text;
+}
+
+/* Copy button (shown only at the known-good-prompt stage) */
+.card-copy {
+  position: relative;
+  z-index: 4;
+  margin-top: 4px;
+  padding: 6px 12px;
+  border: 2px solid var(--jeop-gold);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--jeop-gold);
+  font-family: var(--font-clue);
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.card-copy:hover {
+  background: var(--jeop-gold);
+  color: var(--jeop-blue-deep);
+}
+
+.card-copy:focus-visible {
+  outline: 3px solid var(--jeop-gold-soft);
+  outline-offset: 2px;
 }
 
 .card-stage {
