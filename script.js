@@ -2,6 +2,9 @@ const CSV_PATH = "data/cards.csv";
 const STAGES = ["points", "question", "hint", "answer"];
 const HIDDEN_POINT_VALUE = 600;
 
+const toPoints = (value) => parseInt(String(value).replace(/[^0-9]/g, ""), 10);
+const isPlaceholderCard = (card) => !card.question || card.question.trim() === "";
+
 const board = document.querySelector("#board");
 const statusMessage = document.querySelector("#status");
 const resetButton = document.querySelector("#reset-board");
@@ -150,8 +153,7 @@ function createCard(card) {
   return cardButton;
 }
 
-function createHiddenCard(card) {
-  const cardElement = document.createElement("div");
+function createHiddenCard(card) {  const cardElement = document.createElement("div");
   cardElement.className = "card is-injection";
   cardElement.dataset.category = card.category;
   cardElement.dataset.points = card.points;
@@ -174,10 +176,30 @@ function createHiddenCard(card) {
   return cardElement;
 }
 
+function createComingSoonCard(card) {
+  const cardElement = document.createElement("div");
+  cardElement.className = "card is-coming-soon";
+  cardElement.dataset.stage = "0";
+  cardElement.setAttribute("aria-disabled", "true");
+
+  const label = document.createElement("span");
+  label.className = "card-label";
+  label.textContent = `${toPoints(card.points)}`;
+
+  const stage = document.createElement("span");
+  stage.className = "card-stage";
+  stage.textContent = "Coming soon";
+
+  cardElement.append(label, stage);
+  return cardElement;
+}
+
 function renderBoard() {
   const groupedCards = groupCardsByCategory(cards);
   const categories = [...groupedCards.keys()];
-  const pointValues = [...new Set(cards.map((card) => Number(card.points)))].sort((a, b) => a - b);
+  const pointValues = [
+    ...new Set(cards.map((card) => toPoints(card.points)).filter((value) => Number.isFinite(value))),
+  ].sort((a, b) => a - b);
   const cardElements = [];
 
   board.innerHTML = "";
@@ -201,7 +223,7 @@ function renderBoard() {
     row.classList.toggle("is-hidden-injection", points === HIDDEN_POINT_VALUE);
 
     categories.forEach((category) => {
-      const card = groupedCards.get(category).find((item) => Number(item.points) === points);
+      const card = groupedCards.get(category).find((item) => toPoints(item.points) === points);
       if (!card) {
         const spacer = document.createElement("div");
         spacer.className = "card";
@@ -212,6 +234,11 @@ function renderBoard() {
 
       if (points === HIDDEN_POINT_VALUE) {
         row.append(createHiddenCard(card));
+        return;
+      }
+
+      if (isPlaceholderCard(card)) {
+        row.append(createComingSoonCard(card));
         return;
       }
 
@@ -227,7 +254,9 @@ function renderBoard() {
     cardElements.forEach((cardElement) => cardElement.reset());
   };
 
-  const visibleCards = cards.filter((card) => Number(card.points) !== HIDDEN_POINT_VALUE);
+  const visibleCards = cards.filter(
+    (card) => toPoints(card.points) !== HIDDEN_POINT_VALUE && !isPlaceholderCard(card)
+  );
   statusMessage.textContent = `${visibleCards.length} cards loaded from ${CSV_PATH}`;
 }
 
