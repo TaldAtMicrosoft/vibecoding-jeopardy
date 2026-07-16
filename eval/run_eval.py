@@ -23,9 +23,11 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -84,32 +86,85 @@ def mcp_flags() -> list[str]:
     return flags
 
 
+def _kill_tree(pid: int) -> None:
+    """Kill a process and ALL its descendants.
+
+    Agency spawns a grandchild engine (copilot) that keeps the output pipe
+    open, so killing only the direct child leaves it running and the parent
+    waiting forever. taskkill /T (Windows) / killpg (POSIX) take out the tree.
+    """
+    try:
+        if os.name == "nt":
+            subprocess.run(
+                ["taskkill", "/F", "/T", "/PID", str(pid)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+        else:
+            os.killpg(os.getpgid(pid), 9)
+    except Exception:
+        pass
+
+
+def _run_capture(cmd: list[str], timeout: int) -> tuple[float, str, bool]:
+    """Run cmd with a HARD wall-clock timeout. Returns (elapsed, output, timed_out).
+
+    Output is streamed to a temp file (not a pipe) so a huge/slow run can never
+    deadlock on a full pipe buffer, and on timeout the whole process tree is
+    killed so we actually regain control instead of blocking on a grandchild.
+    """
+    popen_kwargs: dict = {}
+    if os.name == "nt":
+        popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        popen_kwargs["start_new_session"] = True
+
+    tmp = tempfile.NamedTemporaryFile(
+        mode="w+", encoding="utf-8", errors="replace",
+        suffix=".log", delete=False,
+    )
+    start = time.perf_counter()          # start timer right before initializing
+    timed_out = False
+    try:
+        proc = subprocess.Popen(cmd, stdout=tmp, stderr=subprocess.STDOUT, **popen_kwargs)
+        try:
+            proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            _kill_tree(proc.pid)
+            try:
+                proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                pass
+        elapsed = time.perf_counter() - start
+        tmp.flush()
+        tmp.seek(0)
+        output = tmp.read()
+    finally:
+        tmp.close()
+        try:
+            os.unlink(tmp.name)
+        except OSError:
+            pass
+    return elapsed, output.strip(), timed_out
+
+
 def run_agent(prompt: str, timeout: int, dry_run: bool) -> tuple[float, str, bool]:
     """Run the prompt. Returns (elapsed_seconds, output, timed_out)."""
     cmd = AGENCY_CMD + ["-p", prompt, YOLO_FLAG] + mcp_flags()
     if dry_run:
         print("    [dry-run] " + " ".join(_show(c) for c in cmd))
         return 0.0, "(dry-run: not executed)", False
-
-    start = time.perf_counter()          # start timer right before initializing
-    try:
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
-        elapsed = time.perf_counter() - start
-        output = (proc.stdout or "") + (proc.stderr or "")
-        return elapsed, output.strip(), False
-    except subprocess.TimeoutExpired:
-        elapsed = time.perf_counter() - start
-        return elapsed, "", True
-    except FileNotFoundError:
+    if not _agency_exists():
         raise SystemExit(
             f"Could not find '{AGENCY_CMD[0]}'. Edit AGENCY_CMD/flags at the top "
             f"of {Path(__file__).name} to match your Agency install."
         )
+    return _run_capture(cmd, timeout)
+
+
+def _agency_exists() -> bool:
+    from shutil import which
+    return which(AGENCY_CMD[0]) is not None
 
 
 JUDGE_TIMEOUT = 120
@@ -134,11 +189,9 @@ def judge(question: str, prompt: str, output: str, dry_run: bool) -> tuple[bool,
         'a compact JSON object: {"verdict": "pass" or "fail", "reason": "one short sentence"}.'
     )
     cmd = AGENCY_CMD + ["-p", judge_prompt, YOLO_FLAG]
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=JUDGE_TIMEOUT)
-    except subprocess.TimeoutExpired:
+    _, text, timed_out = _run_capture(cmd, JUDGE_TIMEOUT)
+    if timed_out:
         return False, "judge timed out"
-    text = (proc.stdout or "") + (proc.stderr or "")
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         return False, "judge returned no verdict (treated as fail)"
@@ -199,6 +252,10 @@ def _tag(result: Result) -> str:
 
 
 def main() -> int:
+    try:
+        sys.stdout.reconfigure(line_buffering=True)  # stream per-card lines live
+    except Exception:
+        pass
     parser = argparse.ArgumentParser(description="Run the Jeopardy prompt evals.")
     parser.add_argument("--csv", type=Path, default=CSV_PATH, help="path to cards.csv")
     parser.add_argument("--pass-seconds", type=int, default=PASS_SECONDS,
