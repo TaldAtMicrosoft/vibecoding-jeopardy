@@ -1,0 +1,21 @@
+Title,Counterparty,AssignedAttorney,ContractValue,DueDate,ContractType,ReviewStatus,Priority
+Acme Corp NDA Renewal,Acme Corporation,Jordan Ellis,0.0,2026-08-05T00:00:00Z,NDA,Intake,Low
+Globex MSA 2026,Globex Inc.,Priya Raman,485000.0,2026-09-15T00:00:00Z,MSA,In Review,High
+Initech SOW - Data Migration,Initech LLC,Marcus Webb,127500.0,2026-07-28T00:00:00Z,SOW,Negotiation,Urgent
+Wayne Enterprises Vendor Agreement,Wayne Enterprises,Sofia Nguyen,310000.0,2026-08-22T00:00:00Z,Vendor Agreement,Executed,Low
+Umbrella Software License,Umbrella Systems,Dana Kirk,92000.0,2026-10-01T00:00:00Z,Software License,Awaiting Signature,Medium
+Stark Industries Employment - VP Eng,Stark Industries,Jordan Ellis,0.0,2026-07-30T00:00:00Z,Employment,On Hold,High
+Soylent Corp Amendment 3,Soylent Corp,Priya Raman,54000.0,2026-09-02T00:00:00Z,Amendment,In Review,Medium
+Pied Piper SOW - Compression,Pied Piper,Sofia Nguyen,88000.0,2026-08-18T00:00:00Z,SOW,In Review,High
+Cyberdyne MSA,Cyberdyne Systems,Marcus Webb,720000.0,2026-11-10T00:00:00Z,MSA,Intake,Urgent
+Vandelay Vendor Agreement,Vandelay Industries,Jordan Ellis,215000.0,2026-09-28T00:00:00Z,Vendor Agreement,Awaiting Signature,Low
+Hooli NDA - Partnership Talks,Hooli,Dana Kirk,0.0,2026-07-25T00:00:00Z,NDA,Negotiation,Medium
+Wonka SOW - Facility Audit,Wonka Industries,Marcus Webb,47500.0,2026-08-11T00:00:00Z,SOW,Intake,Medium
+Tyrell Software License,Tyrell Corporation,Priya Raman,163000.0,2026-10-14T00:00:00Z,Software License,In Review,High
+Oscorp Employment - Research Lead,Oscorp,Sofia Nguyen,0.0,2026-08-08T00:00:00Z,Employment,Executed,Low
+Massive Dynamic Amendment 1,Massive Dynamic,Dana Kirk,98500.0,2026-09-20T00:00:00Z,Amendment,Negotiation,High
+Aperture SOW - Testing Chamber,Aperture Science,Marcus Webb,133000.0,2026-10-05T00:00:00Z,SOW,Negotiation,High
+Nakatomi MSA - Security Services,Nakatomi Trading,Priya Raman,540000.0,2026-12-01T00:00:00Z,MSA,In Review,Urgent
+Weyland Vendor Agreement,Weyland-Yutani,Sofia Nguyen,268000.0,2026-11-22T00:00:00Z,Vendor Agreement,Intake,Low
+Gekko & Co NDA,Gekko & Co,Jordan Ellis,0.0,2026-08-30T00:00:00Z,NDA,Awaiting Signature,Medium
+Bluth Company Amendment 2,The Bluth Company,Dana Kirk,61000.0,2026-09-09T00:00:00Z,Amendment,Executed,Medium
