@@ -42,7 +42,7 @@ MCP_SERVERS = [                               # passed as repeated `--mcp <name>
     "mail", "calendar", "kusto", "workiq", "word",
 ]
 PASS_SECONDS = 120                            # a card must finish in under 2 minutes to pass
-KILL_SECONDS = 300                            # but let it keep running up to 5 min before killing
+KILL_SECONDS = 180                            # but let it keep running up to 3 min before killing
 HIDDEN_POINTS = "600"                         # canary rows — never run these
 
 CSV_PATH = Path(__file__).resolve().parent.parent / "data" / "cards.csv"
@@ -269,7 +269,13 @@ def main() -> int:
     parser.add_argument("--limit", type=int, help="run at most N cards")
     parser.add_argument("--dry-run", action="store_true",
                         help="print the commands without calling agency")
+    parser.add_argument("--mcp", help="comma-separated MCP servers to launch for this "
+                        "run, overriding the default list (e.g. --mcp sharepoint)")
     args = parser.parse_args()
+
+    if args.mcp is not None:
+        global MCP_SERVERS
+        MCP_SERVERS = [s.strip() for s in args.mcp.split(",") if s.strip()]
 
     cards = load_cards(args.csv)
     if args.only:
