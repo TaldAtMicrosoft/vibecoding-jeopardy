@@ -39,7 +39,8 @@ MCP_SERVERS = [                               # passed as repeated `--mcp <name>
     "graph", "powerbi", "teams", "sharepoint", "onedrive",
     "mail", "calendar", "kusto", "workiq", "word",
 ]
-PASS_SECONDS = 120                            # a card must finish in under 2 minutes
+PASS_SECONDS = 120                            # a card must finish in under 2 minutes to pass
+KILL_SECONDS = 300                            # but let it keep running up to 5 min before killing
 HIDDEN_POINTS = "600"                         # canary rows — never run these
 
 CSV_PATH = Path(__file__).resolve().parent.parent / "data" / "cards.csv"
@@ -149,17 +150,23 @@ def judge(question: str, prompt: str, output: str, dry_run: bool) -> tuple[bool,
     return passed, str(verdict.get("reason", "")).strip()
 
 
-def evaluate(card: dict, pass_seconds: int, dry_run: bool) -> Result:
+def evaluate(card: dict, pass_seconds: int, kill_seconds: int, dry_run: bool) -> Result:
     question = card["question"].strip()
     prompt = card["answer"].strip()
 
-    elapsed, output, timed_out = run_agent(prompt, timeout=pass_seconds, dry_run=dry_run)
+    # Let the agent run up to kill_seconds so we capture its real duration,
+    # but it only PASSES if it finished within pass_seconds.
+    elapsed, output, timed_out = run_agent(prompt, timeout=kill_seconds, dry_run=dry_run)
 
     if timed_out or elapsed > pass_seconds:
+        reason = (
+            f"killed after {kill_seconds}s" if timed_out
+            else f"took {elapsed:.1f}s, exceeded {pass_seconds}s limit"
+        )
         return Result(
             category=card["category"], points=card["points"], question=question,
             elapsed_sec=round(elapsed, 1), status="fail", failure_type="time",
-            reason=f"exceeded {pass_seconds}s limit",
+            reason=reason,
         )
 
     if not dry_run and not output:
@@ -196,6 +203,8 @@ def main() -> int:
     parser.add_argument("--csv", type=Path, default=CSV_PATH, help="path to cards.csv")
     parser.add_argument("--pass-seconds", type=int, default=PASS_SECONDS,
                         help="max seconds for a card to still pass (default 120)")
+    parser.add_argument("--kill-seconds", type=int, default=KILL_SECONDS,
+                        help="hard timeout before the agent is killed (default 300)")
     parser.add_argument("--only", help="only run cards whose category contains this text")
     parser.add_argument("--limit", type=int, help="run at most N cards")
     parser.add_argument("--dry-run", action="store_true",
@@ -213,13 +222,14 @@ def main() -> int:
         return 1
 
     print(f"Running {len(cards)} card(s) from {args.csv}")
-    print(f"Pass threshold: < {args.pass_seconds}s and judge says goal met\n")
+    print(f"Pass threshold: < {args.pass_seconds}s and judge says goal met "
+          f"(killed at {args.kill_seconds}s)\n")
 
     results: list[Result] = []
     for index, card in enumerate(cards, start=1):
         print(f"[{index}/{len(cards)}] {card['category']} {card['points']} — "
               f"{card['question'][:70]}")
-        result = evaluate(card, args.pass_seconds, args.dry_run)
+        result = evaluate(card, args.pass_seconds, args.kill_seconds, args.dry_run)
         results.append(result)
         print(f"    -> {_tag(result)}  ({result.elapsed_sec}s)  {result.reason}\n")
 
