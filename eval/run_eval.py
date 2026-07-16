@@ -28,7 +28,9 @@ import re
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -44,9 +46,18 @@ MCP_SERVERS = [                               # passed as repeated `--mcp <name>
 PASS_SECONDS = 120                            # a card must finish in under 2 minutes to pass
 KILL_SECONDS = 180                            # but let it keep running up to 3 min before killing
 HIDDEN_POINTS = "600"                         # canary rows — never run these
+DEFAULT_JOBS = 0                              # 0 == run every card concurrently (one worker each)
 
 CSV_PATH = Path(__file__).resolve().parent.parent / "data" / "cards.csv"
 RESULTS_PATH = Path(__file__).resolve().parent / "results.json"
+
+# stdout is shared across worker threads; serialize prints so lines don't interleave.
+_PRINT_LOCK = threading.Lock()
+
+
+def log(msg: str = "") -> None:
+    with _PRINT_LOCK:
+        print(msg, flush=True)
 
 # --------------------------------------------------------------------------- #
 
@@ -152,7 +163,7 @@ def run_agent(prompt: str, timeout: int, dry_run: bool) -> tuple[float, str, boo
     """Run the prompt. Returns (elapsed_seconds, output, timed_out)."""
     cmd = AGENCY_CMD + ["-p", prompt, YOLO_FLAG] + mcp_flags()
     if dry_run:
-        print("    [dry-run] " + " ".join(_show(c) for c in cmd))
+        log("    [dry-run] " + " ".join(_show(c) for c in cmd))
         return 0.0, "(dry-run: not executed)", False
     if not _agency_exists():
         raise SystemExit(
@@ -206,13 +217,19 @@ def judge(question: str, prompt: str, output: str, dry_run: bool) -> tuple[bool,
     return passed, str(verdict.get("reason", "")).strip()
 
 
-def evaluate(card: dict, pass_seconds: int, kill_seconds: int, dry_run: bool) -> Result:
+def run_card(card: dict, kill_seconds: int, dry_run: bool) -> dict:
+    """Phase 1: execute a card's prompt. Returns a raw run record (no judging yet)."""
+    prompt = card["answer"].strip()
+    elapsed, output, timed_out = run_agent(prompt, timeout=kill_seconds, dry_run=dry_run)
+    return {"card": card, "elapsed": elapsed, "output": output, "timed_out": timed_out}
+
+
+def judge_run(run: dict, pass_seconds: int, kill_seconds: int, dry_run: bool) -> Result:
+    """Phase 2: apply the time gate, then (if in time) ask the judge."""
+    card = run["card"]
+    elapsed, output, timed_out = run["elapsed"], run["output"], run["timed_out"]
     question = card["question"].strip()
     prompt = card["answer"].strip()
-
-    # Let the agent run up to kill_seconds so we capture its real duration,
-    # but it only PASSES if it finished within pass_seconds.
-    elapsed, output, timed_out = run_agent(prompt, timeout=kill_seconds, dry_run=dry_run)
 
     if timed_out or elapsed > pass_seconds:
         reason = (
@@ -233,14 +250,11 @@ def evaluate(card: dict, pass_seconds: int, kill_seconds: int, dry_run: bool) ->
         )
 
     passed, reason = judge(question, prompt, output, dry_run)
-    if passed:
-        return Result(
-            category=card["category"], points=card["points"], question=question,
-            elapsed_sec=round(elapsed, 1), status="pass", failure_type="", reason=reason,
-        )
+    status = "pass" if passed else "fail"
     return Result(
         category=card["category"], points=card["points"], question=question,
-        elapsed_sec=round(elapsed, 1), status="fail", failure_type="answer", reason=reason,
+        elapsed_sec=round(elapsed, 1), status=status,
+        failure_type="" if passed else "answer", reason=reason,
     )
 
 
@@ -255,16 +269,14 @@ def _tag(result: Result) -> str:
 
 
 def main() -> int:
-    try:
-        sys.stdout.reconfigure(line_buffering=True)  # stream per-card lines live
-    except Exception:
-        pass
     parser = argparse.ArgumentParser(description="Run the Jeopardy prompt evals.")
     parser.add_argument("--csv", type=Path, default=CSV_PATH, help="path to cards.csv")
     parser.add_argument("--pass-seconds", type=int, default=PASS_SECONDS,
                         help="max seconds for a card to still pass (default 120)")
     parser.add_argument("--kill-seconds", type=int, default=KILL_SECONDS,
-                        help="hard timeout before the agent is killed (default 300)")
+                        help="hard timeout before the agent is killed (default 180)")
+    parser.add_argument("--jobs", type=int, default=DEFAULT_JOBS,
+                        help="max concurrent agent runs (0 = one per card, all at once)")
     parser.add_argument("--only", help="only run cards whose category contains this text")
     parser.add_argument("--limit", type=int, help="run at most N cards")
     parser.add_argument("--dry-run", action="store_true",
@@ -284,38 +296,78 @@ def main() -> int:
         cards = cards[: args.limit]
 
     if not cards:
-        print("No runnable cards found.")
+        log("No runnable cards found.")
         return 1
 
-    print(f"Running {len(cards)} card(s) from {args.csv}")
-    print(f"Pass threshold: < {args.pass_seconds}s and judge says goal met "
-          f"(killed at {args.kill_seconds}s)\n")
+    jobs = args.jobs if args.jobs and args.jobs > 0 else len(cards)
+    jobs = min(jobs, len(cards))
 
-    results: list[Result] = []
-    for index, card in enumerate(cards, start=1):
-        print(f"[{index}/{len(cards)}] {card['category']} {card['points']} — "
-              f"{card['question'][:70]}")
-        result = evaluate(card, args.pass_seconds, args.kill_seconds, args.dry_run)
-        results.append(result)
-        print(f"    -> {_tag(result)}  ({result.elapsed_sec}s)  {result.reason}\n")
+    log(f"Running {len(cards)} card(s) from {args.csv}")
+    log(f"Pass threshold: < {args.pass_seconds}s and judge says goal met "
+        f"(killed at {args.kill_seconds}s)")
+    log(f"Concurrency: up to {jobs} agent run(s) at a time\n")
+
+    wall_start = time.perf_counter()
+
+    # --- Phase 1: run every card's prompt concurrently -------------------- #
+    log(f"Phase 1/2 - launching {len(cards)} agent run(s)...")
+    runs: dict[int, dict] = {}
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        futs = {pool.submit(run_card, card, args.kill_seconds, args.dry_run): i
+                for i, card in enumerate(cards)}
+        done = 0
+        for fut in as_completed(futs):
+            i = futs[fut]
+            runs[i] = fut.result()
+            done += 1
+            card = cards[i]
+            r = runs[i]
+            note = "killed" if r["timed_out"] else f"{r['elapsed']:.1f}s"
+            log(f"  [run {done}/{len(cards)}] {card['category']} {card['points']} - {note}")
+    run_secs = time.perf_counter() - wall_start
+    log(f"Phase 1 done in {run_secs:.1f}s wall-clock.\n")
+
+    # --- Phase 2: judge every run concurrently ---------------------------- #
+    log(f"Phase 2/2 - judging {len(cards)} run(s)...")
+    judge_start = time.perf_counter()
+    results_by_index: dict[int, Result] = {}
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        futs = {pool.submit(judge_run, runs[i], args.pass_seconds,
+                            args.kill_seconds, args.dry_run): i
+                for i in range(len(cards))}
+        done = 0
+        for fut in as_completed(futs):
+            i = futs[fut]
+            result = fut.result()
+            results_by_index[i] = result
+            done += 1
+            log(f"  [judge {done}/{len(cards)}] {result.category} {result.points} - "
+                f"{_tag(result)}  {result.reason}")
+    judge_secs = time.perf_counter() - judge_start
+    wall_total = time.perf_counter() - wall_start
+    log(f"Phase 2 done in {judge_secs:.1f}s wall-clock.\n")
+
+    results = [results_by_index[i] for i in range(len(cards))]
 
     passed = sum(1 for r in results if r.status == "pass")
     fail_time = sum(1 for r in results if r.failure_type == "time")
     fail_answer = sum(1 for r in results if r.failure_type == "answer")
 
-    print("=" * 68)
-    print(f"{'CARD':<34}{'RESULT':<13}{'TIME':>8}")
-    print("-" * 68)
+    log("=" * 68)
+    log(f"{'CARD':<34}{'RESULT':<13}{'TIME':>8}")
+    log("-" * 68)
     for r in results:
         label = f"{r.category} {r.points}"
-        print(f"{label:<34}{_tag(r):<13}{r.elapsed_sec:>7}s")
-    print("-" * 68)
-    print(f"Passed {passed}/{len(results)}  |  time-fails: {fail_time}  |  answer-fails: {fail_answer}")
+        log(f"{label:<34}{_tag(r):<13}{r.elapsed_sec:>7}s")
+    log("-" * 68)
+    log(f"Passed {passed}/{len(results)}  |  time-fails: {fail_time}  |  answer-fails: {fail_answer}")
+    log(f"Wall-clock: {wall_total:.1f}s total "
+        f"(run {run_secs:.1f}s + judge {judge_secs:.1f}s)")
 
     RESULTS_PATH.write_text(
         json.dumps([asdict(r) for r in results], indent=2), encoding="utf-8"
     )
-    print(f"\nWrote detailed results to {RESULTS_PATH}")
+    log(f"\nWrote detailed results to {RESULTS_PATH}")
 
     return 0 if passed == len(results) else 1
 
