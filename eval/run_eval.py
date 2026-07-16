@@ -192,11 +192,14 @@ def judge(question: str, prompt: str, output: str, dry_run: bool) -> tuple[bool,
     _, text, timed_out = _run_capture(cmd, JUDGE_TIMEOUT)
     if timed_out:
         return False, "judge timed out"
-    match = re.search(r"\{.*\}", text, re.DOTALL)
-    if not match:
+    # Agency prints startup noise containing braces (e.g. "mcp{bluebird}"), so
+    # match a flat JSON object that actually contains our "verdict" key rather
+    # than greedily spanning from the first brace to the last.
+    candidates = re.findall(r'\{[^{}]*"verdict"[^{}]*\}', text, re.DOTALL)
+    if not candidates:
         return False, "judge returned no verdict (treated as fail)"
     try:
-        verdict = json.loads(match.group(0))
+        verdict = json.loads(candidates[-1])
     except json.JSONDecodeError:
         return False, "judge verdict not valid JSON (treated as fail)"
     passed = str(verdict.get("verdict", "")).lower().strip() == "pass"
