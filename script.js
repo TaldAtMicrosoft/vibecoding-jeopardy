@@ -360,6 +360,8 @@ async function loadTips() {
     const headerEl = tipsCard.querySelector(".tips-card__header");
     const contentEl = tipsCard.querySelector(".tips-card__content");
     const nextButton = tipsCard.querySelector(".tips-card__next");
+    const maximizeButton = tipsCard.querySelector(".card-maximize");
+    const closeButton = tipsCard.querySelector(".card-close");
     let index = 0;
 
     const showTip = () => {
@@ -375,6 +377,18 @@ async function loadTips() {
         showTip();
       });
     }
+
+    maximizeButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openCardModal(tipsCard);
+    });
+
+    closeButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (tipsCard.classList.contains("is-maximized")) {
+        closeCardModal();
+      }
+    });
 
     showTip();
     tipsCard.hidden = false;

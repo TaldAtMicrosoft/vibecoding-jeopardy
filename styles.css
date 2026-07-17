@@ -589,6 +589,76 @@ body.is-modal-open {
   }
 }
 
+/* Tips card controls + maximized state */
+.tips-card {
+  position: relative;
+}
+
+.tips-card .card-controls {
+  opacity: 0;
+}
+
+.tips-card:hover .card-controls,
+.tips-card:focus-within .card-controls,
+.tips-card.is-maximized .card-controls {
+  opacity: 1;
+}
+
+.tips-card .card-close {
+  display: none;
+}
+
+.tips-card.is-maximized .card-close {
+  display: grid;
+}
+
+.tips-card.is-maximized .card-maximize {
+  display: none;
+}
+
+.tips-card.is-maximized {
+  position: static;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  padding: clamp(28px, 5vw, 56px);
+}
+
+.tips-card.is-maximized .card-controls {
+  top: 14px;
+  right: 14px;
+}
+
+.tips-card.is-maximized .card-controls button {
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+}
+
+.tips-card.is-maximized .tips-card__eyebrow {
+  font-size: 1rem;
+}
+
+.tips-card.is-maximized .tips-card__header {
+  font-size: clamp(2rem, 6vw, 4rem);
+}
+
+.tips-card.is-maximized .tips-card__content {
+  font-size: clamp(1.1rem, 2.6vw, 1.8rem);
+  max-width: 42ch;
+}
+
+.tips-card.is-maximized .tips-card__next {
+  font-size: 0.82rem;
+  padding: 10px 20px;
+}
+
 @keyframes tv-static {
   0% {
     opacity: 0.9;
