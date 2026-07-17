@@ -18,6 +18,28 @@ so you can tell them apart.
 
 Hidden `600`-point canary rows and blank "Coming soon" placeholders are skipped.
 
+## Approval counting
+
+Runs execute under `--yolo` (everything auto-approved) so timing is never
+distorted by an interactive prompt. On top of that, every run is launched with
+`--output-format json` and the JSONL event stream is parsed to count how many
+tool executions **would** have required a user approval if the card were run
+under `/yolo auto` instead of full `--yolo`.
+
+The `APPROVE` column in the summary shows `total/unique` per card:
+
+- **total** — every would-be approval (each `tool.execution_start` whose tool is
+  not in `NO_APPROVAL_TOOLS`).
+- **unique** — collapses repeats of the same tool + command/path/url, modelling
+  an "approve & remember" click.
+
+Approvals are **informational only** — they never affect pass/fail. Use them to
+spot prompts that are onerous (many approvals) and worth trimming. A per-card
+breakdown (`approvals_by_tool`, `tool_calls`) is written to `eval/results.json`.
+
+The full JSONL event stream for each card is saved under `eval/logs/<card>.jsonl`
+(git-ignored) for offline inspection.
+
 ## Run
 
 ```bash
@@ -38,9 +60,11 @@ Edit the constants at the top of `run_eval.py` to match your Agency install:
 | --- | --- |
 | `AGENCY_CMD` | base launcher, default `["agency", "copilot"]` |
 | `YOLO_FLAG` | approval-skipping flag so runs don't hang (default `--yolo`) |
+| `OUTPUT_FORMAT` | `--output-format` value, `json` so approvals can be counted |
+| `NO_APPROVAL_TOOLS` | tools that auto-run and are **not** counted as approvals |
 | `MCP_SERVERS` | servers passed as repeated `--mcp <name>` |
-| `PASS_SECONDS` | the 2-minute (120s) pass threshold |
-| `KILL_SECONDS` | hard timeout before the agent is killed (default 300s / 5 min) |
+| `PASS_SECONDS` | the pass threshold (prompt execution, cold start excluded) |
+| `KILL_SECONDS` | hard timeout before the agent is killed |
 
 The timer starts immediately before the agent process is launched and stops the
 moment it returns. A run over `PASS_SECONDS` is a `time` failure but is allowed

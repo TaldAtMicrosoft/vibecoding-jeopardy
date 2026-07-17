@@ -4,6 +4,7 @@ __pycache__/
 
 # Eval scratch artifacts - byproducts of agency eval runs, not part of the site
 eval/_scratch_*.csv
+eval/logs/
 AI_Diffusion_Q12026_Update.csv
 contract_review_data.json
 build_site.py
