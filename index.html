@@ -74,11 +74,29 @@
       <p id="status" role="status">Loading cards...</p>
     </section>
 
+    <aside id="tips-card" class="tips-card" aria-label="Prompting tips" hidden>
+      <div class="tips-card__eyebrow">Tip</div>
+      <h2 class="tips-card__header"></h2>
+      <p class="tips-card__content"></p>
+      <button class="tips-card__next" type="button">Next tip &rarr;</button>
+    </aside>
+
     <section id="board" class="board" aria-label="Jeopardy board"></section>
   </main>
 
+  <div id="card-modal" class="card-modal" hidden aria-hidden="true">
+    <div class="card-modal__backdrop" data-modal-close></div>
+    <div class="card-modal__frame" role="dialog" aria-modal="true" aria-label="Maximized card">
+      <div class="card-modal__slot"></div>
+    </div>
+  </div>
+
   <template id="card-template">
     <div class="card" role="button" tabindex="0">
+      <div class="card-controls">
+        <button class="card-maximize" type="button" title="Maximize" aria-label="Maximize card">&#x26F6;</button>
+        <button class="card-close" type="button" title="Close" aria-label="Close card">&#x2715;</button>
+      </div>
       <span class="card-label"></span>
       <span class="card-stage"></span>
       <button class="card-copy" type="button" hidden>Copy prompt</button>

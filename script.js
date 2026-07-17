@@ -1,14 +1,64 @@
 const CSV_PATH = "data/cards.csv";
 const STAGES = ["points", "question", "hint", "answer"];
 const HIDDEN_POINT_VALUE = 600;
+// Categories present in the data but intentionally not playable in the UI yet.
+const DISABLED_CATEGORIES = new Set(["Build Me!"]);
 
 const toPoints = (value) => parseInt(String(value).replace(/[^0-9]/g, ""), 10);
 const isPlaceholderCard = (card) => !card.question || card.question.trim() === "";
+const isDisabledCard = (card) => DISABLED_CATEGORIES.has(card.category) || isPlaceholderCard(card);
 
 const board = document.querySelector("#board");
 const statusMessage = document.querySelector("#status");
 const resetButton = document.querySelector("#reset-board");
 const cardTemplate = document.querySelector("#card-template");
+
+const cardModal = document.querySelector("#card-modal");
+const cardModalSlot = cardModal.querySelector(".card-modal__slot");
+let maximizedCard = null;
+let modalPlaceholder = null;
+
+function openCardModal(cardButton) {
+  if (maximizedCard) {
+    return;
+  }
+  modalPlaceholder = document.createComment("maximized-card");
+  cardButton.replaceWith(modalPlaceholder);
+  cardModalSlot.append(cardButton);
+  cardButton.classList.add("is-maximized");
+  maximizedCard = cardButton;
+  cardModal.hidden = false;
+  cardModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("is-modal-open");
+  cardButton.focus();
+}
+
+function closeCardModal() {
+  if (!maximizedCard) {
+    return;
+  }
+  const cardButton = maximizedCard;
+  cardButton.classList.remove("is-maximized");
+  modalPlaceholder.replaceWith(cardButton);
+  modalPlaceholder = null;
+  maximizedCard = null;
+  cardModal.hidden = true;
+  cardModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("is-modal-open");
+  cardButton.focus();
+}
+
+cardModal.addEventListener("click", (event) => {
+  if (event.target.closest("[data-modal-close]")) {
+    closeCardModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && maximizedCard) {
+    closeCardModal();
+  }
+});
 
 let cards = [];
 
@@ -71,6 +121,8 @@ function createCard(card) {
   const label = cardButton.querySelector(".card-label");
   const stage = cardButton.querySelector(".card-stage");
   const copyButton = cardButton.querySelector(".card-copy");
+  const maximizeButton = cardButton.querySelector(".card-maximize");
+  const closeButton = cardButton.querySelector(".card-close");
   let stageIndex = 0;
 
   function renderCard() {
@@ -103,19 +155,33 @@ function createCard(card) {
   }
 
   cardButton.addEventListener("click", (event) => {
-    if (event.target.closest(".card-copy")) {
+    if (event.target.closest(".card-copy") || event.target.closest(".card-controls")) {
       return;
     }
     advance();
   });
 
   cardButton.addEventListener("keydown", (event) => {
-    if (event.target.closest(".card-copy")) {
+    if (event.target.closest(".card-copy") || event.target.closest(".card-controls")) {
       return;
     }
     if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
       event.preventDefault();
       advance();
+    }
+  });
+
+  maximizeButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    openCardModal(cardButton);
+  });
+
+  closeButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (cardButton.classList.contains("is-maximized")) {
+      closeCardModal();
+    } else {
+      cardButton.reset();
     }
   });
 
@@ -237,7 +303,7 @@ function renderBoard() {
         return;
       }
 
-      if (isPlaceholderCard(card)) {
+      if (isDisabledCard(card)) {
         row.append(createComingSoonCard(card));
         return;
       }
@@ -255,7 +321,7 @@ function renderBoard() {
   };
 
   const visibleCards = cards.filter(
-    (card) => toPoints(card.points) !== HIDDEN_POINT_VALUE && !isPlaceholderCard(card)
+    (card) => toPoints(card.points) !== HIDDEN_POINT_VALUE && !isDisabledCard(card)
   );
   statusMessage.textContent = `${visibleCards.length} cards loaded from ${CSV_PATH}`;
 }
@@ -274,4 +340,48 @@ async function loadCards() {
   }
 }
 
+async function loadTips() {
+  const tipsCard = document.querySelector("#tips-card");
+  if (!tipsCard) {
+    return;
+  }
+  try {
+    const response = await fetch("data/tips.csv");
+    if (!response.ok) {
+      return;
+    }
+    const tips = parseCsv(await response.text()).filter(
+      (tip) => (tip.header || "").trim() !== "" || (tip.content || "").trim() !== ""
+    );
+    if (tips.length === 0) {
+      return;
+    }
+
+    const headerEl = tipsCard.querySelector(".tips-card__header");
+    const contentEl = tipsCard.querySelector(".tips-card__content");
+    const nextButton = tipsCard.querySelector(".tips-card__next");
+    let index = 0;
+
+    const showTip = () => {
+      headerEl.textContent = tips[index].header;
+      contentEl.textContent = tips[index].content;
+    };
+
+    if (tips.length <= 1) {
+      nextButton.hidden = true;
+    } else {
+      nextButton.addEventListener("click", () => {
+        index = (index + 1) % tips.length;
+        showTip();
+      });
+    }
+
+    showTip();
+    tipsCard.hidden = false;
+  } catch (error) {
+    /* Tips are a non-critical enhancement — fail quietly. */
+  }
+}
+
 loadCards();
+loadTips();

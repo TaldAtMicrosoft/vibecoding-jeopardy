@@ -1,0 +1,7 @@
+header,content
+Be specific,"Name the exact tools, files, and columns you want. Vague prompts get vague results."
+Give the agent data,"Point the agent at a real URL or file instead of asking it to recall facts from memory."
+Reveal in stages,"Try the task yourself first, then peek at the hint, and only compare against the known-good prompt at the end."
+Name your MCP servers,"Even when a server like WorkIQ or SharePoint is connected, call it out by name in the prompt."
+Ask for the code,"Tell the agent to show the script it wrote and its output so you can verify the answer is grounded."
+Watch for hidden text,"Agents can be steered by text hidden in a page. Review what a page actually asks before you act on it."
