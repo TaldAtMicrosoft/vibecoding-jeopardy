@@ -516,6 +516,7 @@ body.is-modal-open {
 
 /* Tips card — sits in the left margin on wide screens, inline otherwise */
 .tips-card {
+  position: relative;
   margin: 0 0 18px;
   padding: 16px 18px;
   border: 2px solid var(--jeop-gold);
@@ -590,10 +591,6 @@ body.is-modal-open {
 }
 
 /* Tips card controls + maximized state */
-.tips-card {
-  position: relative;
-}
-
 .tips-card .card-controls {
   opacity: 0;
 }
