@@ -349,9 +349,9 @@ async function loadTips() {
     if (!response.ok) {
       return;
     }
-    const tips = parseCsv(await response.text()).filter(
-      (tip) => (tip.content || "").trim() !== ""
-    );
+    const tips = parseCsv(await response.text())
+      .filter((tip) => (tip.content || "").trim() !== "")
+      .sort((a, b) => (Number(a.index) || 0) - (Number(b.index) || 0));
     if (tips.length === 0) {
       return;
     }

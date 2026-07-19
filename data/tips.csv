@@ -1,13 +1,13 @@
-category,points,content
-Get Data,100,"Agency copilot is internal only, and  gives you access to MCP servers and skills"
-Get Data,200,"Sometimes, even if an agent is setup to have MCP servers and connections like WorkIQ, you must specifically name them in your prompt"
-Get Data,300,No connector and no download button? Give the agent the exact URL and tell it which elements to read straight from the rendered page.
-Process Intelligently,100,"M365 chat  hallucinates totals, or needs effort from Microsoft to ingest grounded, properly referenced answers.. A CLI agent downloads the real file and computes real answers."
-Process Intelligently,200,Chat can describe cleanup; the agent writes the file. Name the exact columns and filename.
-Process Intelligently,300,"Give the agent only the blog post. It has to navigate to the public data itself, then verify — and honestly flag any claim the data can't confirm."
-Visualize,100,"If at first you don't succeed try again. Then your courage should appear, For if you will persevere, You will conquer, never fear; Try, try again. (Sharepoint MCP times out frequently)"
-Visualize,200,"One chart shows counts; a dashboard tells the story. Sum the dollars per attorney, tally the priorities. (SharePoint MCP still times out - persevere.)"
-Visualize,300,Dates are where the risk hides. Do the math from today and let red mean 'now'. (One SharePoint call - keep it lean.)
-Productionalize,100,"Turn on Plan Mode (Shift+Tab), read the plan it proposes, then approve it to run. Real work fetches data once and reuses the local copy."
-Productionalize,200,"Plan first, review, then let it build. The prize is a reusable tool, not a one-off answer."
-Productionalize,300,"Plan it, review the steps, then run. Python can serve a folder locally on localhost - no cloud, no deploy, nothing leaves your laptop."
+index,category,points,content
+1,Get Data,100,"Agency copilot is internal only, and  gives you access to MCP servers and skills"
+2,Get Data,200,"Sometimes, even if an agent is setup to have MCP servers and connections like WorkIQ, you must specifically name them in your prompt"
+3,Get Data,300,No connector and no download button? Give the agent the exact URL and tell it which elements to read straight from the rendered page.
+4,Process Intelligently,100,"M365 chat  hallucinates totals, or needs effort from Microsoft to ingest grounded, properly referenced answers.. A CLI agent downloads the real file and computes real answers."
+5,Process Intelligently,200,Chat can describe cleanup; the agent writes the file. Name the exact columns and filename.
+6,Process Intelligently,300,"Give the agent only the blog post. It has to navigate to the public data itself, then verify — and honestly flag any claim the data can't confirm."
+7,Visualize,100,"If at first you don't succeed try again. Then your courage should appear, For if you will persevere, You will conquer, never fear; Try, try again. (Sharepoint MCP times out frequently)"
+8,Visualize,200,"One chart shows counts; a dashboard tells the story. Sum the dollars per attorney, tally the priorities. (SharePoint MCP still times out - persevere.)"
+9,Visualize,300,Dates are where the risk hides. Do the math from today and let red mean 'now'. (One SharePoint call - keep it lean.)
+10,Productionalize,100,"Turn on Plan Mode (Shift+Tab), read the plan it proposes, then approve it to run. Real work fetches data once and reuses the local copy."
+11,Productionalize,200,"Plan first, review, then let it build. The prize is a reusable tool, not a one-off answer."
+12,Productionalize,300,"Plan it, review the steps, then run. Python can serve a folder locally on localhost - no cloud, no deploy, nothing leaves your laptop."

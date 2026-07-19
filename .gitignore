@@ -27,3 +27,7 @@ data/build_contract_chart.py
 data/contract_items.json
 data/contract_review_chart.html
 data/contract_review_chart.png
+
+# Playwright .NET test harness build output
+tests/playwright/bin/
+tests/playwright/obj/
