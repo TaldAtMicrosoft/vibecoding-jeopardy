@@ -113,6 +113,28 @@ using (var pw = await Playwright.CreateAsync())
     Check("back button visible", await prev.IsVisibleAsync());
     var opacity = await prev.EvaluateAsync<string>("el => getComputedStyle(el).opacity");
     Check("back button not greyed out", opacity == "1", $"opacity={opacity}");
+
+    // "?" help button: jumps the tips card to that card's first tip and maximizes it.
+    // Pick the first tip tied to a real card (numeric points; intro rows have blank points).
+    var target = records.First(r =>
+    {
+        var p = r.Footer.Contains(" - ") ? r.Footer.Split(" - ")[^1] : "";
+        return p.Length > 0 && p.All(char.IsDigit);
+    });
+    var cat = target.Footer.Split(" - ")[0];
+    var pts = target.Footer.Split(" - ")[^1];
+    var help = page.Locator($".card[data-category='{cat}'][data-points='{pts}'] .card-help").First;
+    Check("help button exists on card", await help.CountAsync() > 0, $"{cat} {pts}");
+    if (await help.CountAsync() > 0)
+    {
+        // Hover the card so the controls become interactable, then click "?".
+        await page.Locator($".card[data-category='{cat}'][data-points='{pts}']").First.HoverAsync();
+        await help.ClickAsync(new() { Force = true });
+        var maximized = await page.Locator(".tips-card.is-maximized").CountAsync() > 0;
+        Check("help maximizes the tips card", maximized);
+        var jumpedFooter = (await footer.TextContentAsync() ?? "").Trim();
+        Check("help jumps to that card's first tip", jumpedFooter == target.Footer, $"got '{jumpedFooter}', want '{target.Footer}'");
+    }
 }
 
 cts.Cancel();

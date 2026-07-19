@@ -17,6 +17,8 @@ const cardModal = document.querySelector("#card-modal");
 const cardModalSlot = cardModal.querySelector(".card-modal__slot");
 let maximizedCard = null;
 let modalPlaceholder = null;
+// Set by loadTips once tips are ready; lets a card's "?" button drive the tips card.
+let tipsApi = null;
 
 function openCardModal(cardButton) {
   if (maximizedCard) {
@@ -118,9 +120,12 @@ function groupCardsByCategory(allCards) {
 
 function createCard(card) {
   const cardButton = cardTemplate.content.firstElementChild.cloneNode(true);
+  cardButton.dataset.category = card.category;
+  cardButton.dataset.points = card.points;
   const label = cardButton.querySelector(".card-label");
   const stage = cardButton.querySelector(".card-stage");
   const copyButton = cardButton.querySelector(".card-copy");
+  const helpButton = cardButton.querySelector(".card-help");
   const maximizeButton = cardButton.querySelector(".card-maximize");
   const closeButton = cardButton.querySelector(".card-close");
   let stageIndex = 0;
@@ -174,6 +179,13 @@ function createCard(card) {
   maximizeButton.addEventListener("click", (event) => {
     event.stopPropagation();
     openCardModal(cardButton);
+  });
+
+  helpButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (tipsApi) {
+      tipsApi.jumpToCard(card.category, card.points);
+    }
   });
 
   closeButton.addEventListener("click", (event) => {
@@ -372,6 +384,24 @@ async function loadTips() {
       const tip = tips[index];
       contentEl.textContent = tip.content;
       footerEl.textContent = `${tip.category} - ${tip.points}`;
+    };
+
+    // Let a board card's "?" button jump to its first tip and maximize.
+    tipsApi = {
+      jumpToCard(category, points) {
+        const target = tips.findIndex(
+          (tip) =>
+            tip.category === category &&
+            String(tip.points).trim() === String(points).trim()
+        );
+        if (target === -1) {
+          return false;
+        }
+        index = target;
+        showTip();
+        openCardModal(tipsCard);
+        return true;
+      },
     };
 
     if (tips.length <= 1) {

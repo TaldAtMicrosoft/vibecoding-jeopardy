@@ -413,6 +413,10 @@ h1 {
   color: var(--jeop-blue-deep);
 }
 
+.card-help {
+  font-weight: 700;
+}
+
 .card-controls button:focus-visible {
   outline: 3px solid var(--jeop-gold-soft);
   outline-offset: 2px;
