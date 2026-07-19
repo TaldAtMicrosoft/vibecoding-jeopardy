@@ -568,6 +568,13 @@ body.is-modal-open {
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.7);
 }
 
+.tips-card__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .tips-card__next {
   border: 2px solid var(--jeop-gold);
   border-radius: var(--radius);
@@ -583,12 +590,28 @@ body.is-modal-open {
   transition: background 140ms ease, color 140ms ease;
 }
 
-.tips-card__next:hover {
+.tips-card__prev {
+  border: 2px solid var(--jeop-gold);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--jeop-gold);
+  cursor: pointer;
+  font-family: var(--font-clue);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 6px 12px;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.tips-card__next:hover,
+.tips-card__prev:hover {
   background: var(--jeop-gold);
   color: var(--jeop-blue-deep);
 }
 
-.tips-card__next:focus-visible {
+.tips-card__next:focus-visible,
+.tips-card__prev:focus-visible {
   outline: 3px solid var(--jeop-gold-soft);
   outline-offset: 2px;
 }
@@ -666,9 +689,19 @@ body.is-modal-open {
   padding-top: 0;
 }
 
+.tips-card.is-maximized .tips-card__nav {
+  gap: 16px;
+  justify-content: center;
+}
+
 .tips-card.is-maximized .tips-card__next {
   font-size: 0.82rem;
   padding: 10px 20px;
+}
+
+.tips-card.is-maximized .tips-card__prev {
+  font-size: 1.1rem;
+  padding: 8px 16px;
 }
 
 @keyframes tv-static {
