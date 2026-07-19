@@ -80,7 +80,9 @@ using (var pw = await Playwright.CreateAsync())
     {
         var fields = ParseCsvLine(lines[i]);
         if (fields.Count < 4 || string.IsNullOrWhiteSpace(fields[3])) continue;
-        records.Add((int.Parse(fields[0]), $"{fields[1]} - {fields[2]}", fields[3]));
+        // Non-numeric index = WIP placeholder ("x"); the app skips these, so we do too.
+        if (!int.TryParse(fields[0].Trim(), out var idx)) continue;
+        records.Add((idx, $"{fields[1]} - {fields[2]}".Trim(), fields[3]));
     }
     records.Sort((a, b) => a.Index.CompareTo(b.Index));
 

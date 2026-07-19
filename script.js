@@ -350,8 +350,12 @@ async function loadTips() {
       return;
     }
     const tips = parseCsv(await response.text())
-      .filter((tip) => (tip.content || "").trim() !== "")
-      .sort((a, b) => (Number(a.index) || 0) - (Number(b.index) || 0));
+      .filter(
+        (tip) =>
+          (tip.content || "").trim() !== "" &&
+          /^\d+$/.test((tip.index || "").trim())
+      )
+      .sort((a, b) => Number(a.index) - Number(b.index));
     if (tips.length === 0) {
       return;
     }
