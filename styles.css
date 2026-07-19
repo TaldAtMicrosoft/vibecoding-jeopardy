@@ -598,9 +598,9 @@ body.is-modal-open {
   cursor: pointer;
   font-family: var(--font-clue);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   line-height: 1;
-  padding: 6px 12px;
+  padding: 7px 16px;
   transition: background 140ms ease, color 140ms ease;
 }
 
