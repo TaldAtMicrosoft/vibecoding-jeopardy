@@ -1,13 +1,19 @@
 index,category,points,content
-1,Get Data,100,"Agency copilot is internal only, and  gives you access to MCP servers and skills"
-2,Get Data,200,"Sometimes, even if an agent is setup to have MCP servers and connections like WorkIQ, you must specifically name them in your prompt"
-3,Get Data,300,No connector and no download button? Give the agent the exact URL and tell it which elements to read straight from the rendered page.
-4,Process Intelligently,100,"M365 chat  hallucinates totals, or needs effort from Microsoft to ingest grounded, properly referenced answers.. A CLI agent downloads the real file and computes real answers."
-5,Process Intelligently,200,Chat can describe cleanup; the agent writes the file. Name the exact columns and filename.
-6,Process Intelligently,300,"Give the agent only the blog post. It has to navigate to the public data itself, then verify — and honestly flag any claim the data can't confirm."
-7,Visualize,100,"If at first you don't succeed try again. Then your courage should appear, For if you will persevere, You will conquer, never fear; Try, try again. (Sharepoint MCP times out frequently)"
-8,Visualize,200,"One chart shows counts; a dashboard tells the story. Sum the dollars per attorney, tally the priorities. (SharePoint MCP still times out - persevere.)"
-9,Visualize,300,Dates are where the risk hides. Do the math from today and let red mean 'now'. (One SharePoint call - keep it lean.)
-10,Productionalize,100,"Turn on Plan Mode (Shift+Tab), read the plan it proposes, then approve it to run. Real work fetches data once and reuses the local copy."
-11,Productionalize,200,"Plan first, review, then let it build. The prize is a reusable tool, not a one-off answer."
-12,Productionalize,300,"Plan it, review the steps, then run. Python can serve a folder locally on localhost - no cloud, no deploy, nothing leaves your laptop."
+1,Get Data,,"Getting data, whatever that means for your project, is usually the first step. So let's access some basic data"
+2,Get Data,100,"Agency copilot is internal only, and  gives you access to MCP servers and skills"
+3,Get Data,100,Confirm Folder Trust - human in the loop for safety! Click #2 and trust work folders
+4,Get Data,200,WorkIQ - 'intelligence layer' between you/AI and M365 data
+5,Get Data,200,"Permissions again, ugh. Is it going to ask me to do everything? Yes."
+6,Get Data,200,Reduce some cognitive load. '/experimental on' and then '/yolo auto' 
+7,Get Data,200,"Sometimes, even if an agent is setup to have MCP servers and connections like WorkIQ, you must specifically name them in your prompt"
+8,Get Data,300,No connector and no download button? Tell the agent the exact URL and what you'd like it to read. Succeess depends on the accessibility/readability of the website.
+9,Process Intelligently,,Let's get some larger and more complex data sets and show how we can use AI to process this data...intelligently
+10,Process Intelligently,100,"M365 chat hallucinates totals, or needs effort from Microsoft to ingest grounded, properly referenced answers. A CLI agent downloads the real file and computes real answers. Writing python/powershell scripts are more flexible and reusable."
+x,Process Intelligently,200,"Chat will guess which country ""feels"" like it's rising. The agent subtracts two real columns for every economy and ranks them - no vibes, just the delta."
+x,Process Intelligently,300,"Give the agent only the blog post. It has to navigate to the public data itself, then verify — and honestly flag any claim the data can't confirm."
+x,Visualize,100,"If at first you don't succeed try again. Then your courage should appear, For if you will persevere, You will conquer, never fear; Try, try again. (Sharepoint MCP times out frequently)"
+x,Visualize,200,"One chart shows counts; a dashboard tells the story. Sum the dollars per attorney, tally the priorities. (SharePoint MCP still times out - persevere.)"
+x,Visualize,300,Dates are where the risk hides. Do the math from today and let red mean 'now'. (One SharePoint call - keep it lean.)
+x,Productionalize,100,"Turn on Plan Mode (Shift+Tab), read the plan it proposes, then approve it to run. Real work fetches data once and reuses the local copy."
+x,Productionalize,200,"Plan first, review, then let it build. The prize is a reusable tool, not a one-off answer."
+x,Productionalize,300,"Plan it, review the steps, then run. Python can serve a folder locally on localhost - no cloud, no deploy, nothing leaves your laptop."
