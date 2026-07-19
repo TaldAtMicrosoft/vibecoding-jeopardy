@@ -1,4 +1,7 @@
 const CSV_PATH = "data/cards.csv";
+// Bump on each deploy (keep in sync with the ?v= on styles.css/script.js in
+// index.html) so browsers fetch fresh data files instead of a cached copy.
+const ASSET_VERSION = "20260719g";
 const STAGES = ["points", "question", "answer"];
 const HIDDEN_POINT_VALUE = 600;
 // Categories present in the data but intentionally not playable in the UI yet.
@@ -339,7 +342,7 @@ function renderBoard() {
 
 async function loadCards() {
   try {
-    const response = await fetch(CSV_PATH);
+    const response = await fetch(`${CSV_PATH}?v=${ASSET_VERSION}`);
     if (!response.ok) {
       throw new Error(`Could not load ${CSV_PATH}`);
     }
@@ -357,7 +360,7 @@ async function loadTips() {
     return;
   }
   try {
-    const response = await fetch("data/tips.csv");
+    const response = await fetch(`data/tips.csv?v=${ASSET_VERSION}`);
     if (!response.ok) {
       return;
     }

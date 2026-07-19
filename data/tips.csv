@@ -1,12 +1,12 @@
 index,category,points,content
 1,Get Data,,"Getting data, whatever that means for your project, is usually the first step. So let's access some basic data"
-2,Get Data,100,"Agency copilot is internal only, and  gives you access to MCP servers and skills"
+2,Get Data,100,"Agency copilot is internal only, and gives you access to MCP servers and skills"
 3,Get Data,100,Confirm Folder Trust - human in the loop for safety! Click #2 and trust work folders
 4,Get Data,200,WorkIQ - 'intelligence layer' between you/AI and M365 data
 5,Get Data,200,"Permissions again, ugh. Is it going to ask me to do everything? Yes."
 6,Get Data,200,Reduce some cognitive load. '/experimental on' and then '/yolo auto' 
-7,Get Data,200,"Sometimes, even if an agent is setup to have MCP servers and connections like WorkIQ, you must specifically name them in your prompt"
-8,Get Data,300,No connector and no download button? Tell the agent the exact URL and what you'd like it to read. Succeess depends on the accessibility/readability of the website.
+7,Get Data,200,"Sometimes, even if an agent is set up to have MCP servers and connections like WorkIQ, you must specifically name them in your prompt"
+8,Get Data,300,No connector and no download button? Tell the agent the exact URL and what you'd like it to read. Success depends on the accessibility/readability of the website.
 9,Process Intelligently,,Let's get some larger and more complex data sets and show how we can use AI to process this data...intelligently
 10,Process Intelligently,100,"M365 chat hallucinates totals, or needs effort from Microsoft to ingest grounded, properly referenced answers. A CLI agent downloads the real file and computes real answers. Writing python/powershell scripts are more flexible and reusable."
 11,Process Intelligently,200,"Chat will guess which country ""feels"" like it's rising. The agent subtracts two real columns for every economy and ranks them - no vibes, just the delta."
