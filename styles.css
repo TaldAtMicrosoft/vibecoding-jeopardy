@@ -549,10 +549,23 @@ body.is-modal-open {
 }
 
 .tips-card__content {
-  margin: 0 0 12px;
+  margin: 8px 0 12px;
   color: rgba(245, 246, 255, 0.9);
   font-size: 0.92rem;
   line-height: 1.5;
+}
+
+.tips-card__footer {
+  margin: 0 0 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--jeop-gold);
+  font-family: var(--font-clue);
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.7);
 }
 
 .tips-card__next {
@@ -642,13 +655,15 @@ body.is-modal-open {
   font-size: 1rem;
 }
 
-.tips-card.is-maximized .tips-card__header {
-  font-size: clamp(2rem, 6vw, 4rem);
-}
-
 .tips-card.is-maximized .tips-card__content {
   font-size: clamp(1.1rem, 2.6vw, 1.8rem);
   max-width: 42ch;
+}
+
+.tips-card.is-maximized .tips-card__footer {
+  font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+  border-top: none;
+  padding-top: 0;
 }
 
 .tips-card.is-maximized .tips-card__next {

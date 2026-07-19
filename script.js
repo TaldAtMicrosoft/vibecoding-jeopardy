@@ -1,5 +1,5 @@
 const CSV_PATH = "data/cards.csv";
-const STAGES = ["points", "question", "hint", "answer"];
+const STAGES = ["points", "question", "answer"];
 const HIDDEN_POINT_VALUE = 600;
 // Categories present in the data but intentionally not playable in the UI yet.
 const DISABLED_CATEGORIES = new Set(["Build Me!"]);
@@ -227,7 +227,6 @@ function createHiddenCard(card) {  const cardElement = document.createElement("d
   const fields = [
     ["points", card.points],
     ["question", card.question],
-    ["hint", card.hint],
     ["answer", card.answer],
   ];
 
@@ -351,22 +350,23 @@ async function loadTips() {
       return;
     }
     const tips = parseCsv(await response.text()).filter(
-      (tip) => (tip.header || "").trim() !== "" || (tip.content || "").trim() !== ""
+      (tip) => (tip.content || "").trim() !== ""
     );
     if (tips.length === 0) {
       return;
     }
 
-    const headerEl = tipsCard.querySelector(".tips-card__header");
     const contentEl = tipsCard.querySelector(".tips-card__content");
+    const footerEl = tipsCard.querySelector(".tips-card__footer");
     const nextButton = tipsCard.querySelector(".tips-card__next");
     const maximizeButton = tipsCard.querySelector(".card-maximize");
     const closeButton = tipsCard.querySelector(".card-close");
     let index = 0;
 
     const showTip = () => {
-      headerEl.textContent = tips[index].header;
-      contentEl.textContent = tips[index].content;
+      const tip = tips[index];
+      contentEl.textContent = tip.content;
+      footerEl.textContent = `${tip.category} - ${tip.points}`;
     };
 
     if (tips.length <= 1) {
