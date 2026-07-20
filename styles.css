@@ -500,8 +500,17 @@ h1 {
   font-size: clamp(4rem, 13vw, 9rem);
 }
 
+.card.is-maximized.is-complete {
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
 .card.is-maximized.is-complete .card-label {
-  font-size: clamp(1.1rem, 2.4vw, 1.9rem);
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  line-height: 1.5;
+  text-align: left;
+  max-width: 70ch;
+  overflow-wrap: anywhere;
 }
 
 .card.is-maximized .card-stage {
