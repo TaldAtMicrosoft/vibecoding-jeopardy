@@ -1,7 +1,7 @@
 const CSV_PATH = "data/cards.csv";
 // Bump on each deploy (keep in sync with the ?v= on styles.css/script.js in
 // index.html) so browsers fetch fresh data files instead of a cached copy.
-const ASSET_VERSION = "20260720d";
+const ASSET_VERSION = "20260720e";
 const STAGES = ["points", "question", "answer"];
 const HIDDEN_POINT_VALUE = 600;
 // Categories present in the data but intentionally not playable in the UI yet.
