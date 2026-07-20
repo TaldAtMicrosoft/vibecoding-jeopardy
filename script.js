@@ -5,7 +5,7 @@ const ASSET_VERSION = "20260720a";
 const STAGES = ["points", "question", "answer"];
 const HIDDEN_POINT_VALUE = 600;
 // Categories present in the data but intentionally not playable in the UI yet.
-const DISABLED_CATEGORIES = new Set(["Build Me!"]);
+const DISABLED_CATEGORIES = new Set();
 
 const toPoints = (value) => parseInt(String(value).replace(/[^0-9]/g, ""), 10);
 const isPlaceholderCard = (card) => !card.question || card.question.trim() === "";
