@@ -65,6 +65,23 @@ NO_APPROVAL_TOOLS = {
 CSV_PATH = Path(__file__).resolve().parent.parent / "data" / "cards.csv"
 RESULTS_PATH = Path(__file__).resolve().parent / "results.json"
 LOGS_DIR = Path(__file__).resolve().parent / "logs"      # per-card JSONL transcripts
+PROJECT_ROOT = CSV_PATH.resolve().parent.parent          # repo root (the agent runs here)
+
+# Files a card's prompt is expected to LEAVE ON DISK. After the run, every listed
+# file must exist for the card to pass — a hard artifact check that is independent
+# of whatever the judge reads from the transcript. Each file is deleted before the
+# run so we prove THIS run actually (re)created it.
+EXPECTED_ARTIFACTS: dict[tuple[str, str], list[str]] = {
+    ("Productionalize", "100"): ["plan.md"],
+    ("Productionalize", "200"): ["build_dashboard.py", "contract_deadline_dashboard.html"],
+    ("Productionalize", "300"): ["dashboard/index.html", "dashboard/README.md",
+                                 "dashboard/test_dashboard.py"],
+}
+
+
+def _expected_artifacts(card: dict) -> list[Path]:
+    key = (card.get("category", "").strip(), str(card.get("points", "")).strip())
+    return [PROJECT_ROOT / name for name in EXPECTED_ARTIFACTS.get(key, [])]
 
 # stdout is shared across worker threads; serialize prints so lines don't interleave.
 _PRINT_LOCK = threading.Lock()
@@ -379,6 +396,13 @@ def _analyze_events(output: str) -> dict:
 def run_card(card: dict, kill_seconds: int, dry_run: bool) -> dict:
     """Phase 1: execute a card's prompt. Returns a raw run record (no judging yet)."""
     prompt = card["answer"].strip()
+    artifacts = _expected_artifacts(card)
+    if not dry_run:
+        for path in artifacts:               # start clean so we prove THIS run made them
+            try:
+                path.unlink()
+            except OSError:
+                pass
     elapsed, output, timed_out = run_agent(prompt, timeout=kill_seconds, dry_run=dry_run)
     coldstart, exec_sec = (None, None) if dry_run else _parse_timing(output)
 
@@ -394,9 +418,11 @@ def run_card(card: dict, kill_seconds: int, dry_run: bool) -> dict:
         except OSError:
             pass
 
+    missing_artifacts = ([] if dry_run
+                         else [str(p.relative_to(PROJECT_ROOT)) for p in artifacts if not p.exists()])
     return {"card": card, "elapsed": elapsed, "output": output,
             "timed_out": timed_out, "coldstart": coldstart, "exec": exec_sec,
-            "analysis": analysis,
+            "analysis": analysis, "missing_artifacts": missing_artifacts,
             "final_text": analysis.get("final_text") or output}
 
 
@@ -442,6 +468,11 @@ def judge_run(run: dict, pass_seconds: int, kill_seconds: int, dry_run: bool) ->
     if not dry_run and not output:
         return Result(**base, status="fail", failure_type="answer",
                       reason="agent produced no output")
+
+    missing = run.get("missing_artifacts") or []
+    if not dry_run and missing:
+        return Result(**base, status="fail", failure_type="answer",
+                      reason=f"expected artifact(s) not created: {', '.join(missing)}")
 
     passed, reason = judge(question, prompt, judge_text, dry_run)
     return Result(**base, status="pass" if passed else "fail",
