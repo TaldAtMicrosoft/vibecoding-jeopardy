@@ -11,9 +11,9 @@ index,category,points,content
 10,Process Intelligently,100,"M365 chat hallucinates totals, or needs effort from Microsoft to ingest grounded, properly referenced answers. A CLI agent downloads the real file and computes real answers. Writing python/powershell scripts are more flexible and reusable."
 11,Process Intelligently,200,"Chat will guess which country ""feels"" like it's rising. The agent subtracts two real columns for every economy and ranks them - no vibes, just the delta."
 12,Process Intelligently,300,"Give the agent only the blog post. It has to navigate to the public data itself, then verify — and honestly flag any claim the data can't confirm."
-x,Visualize,100,"If at first you don't succeed try again. Then your courage should appear, For if you will persevere, You will conquer, never fear; Try, try again. (Sharepoint MCP times out frequently)"
-x,Visualize,200,"One chart shows counts; a dashboard tells the story. Sum the dollars per attorney, tally the priorities. (SharePoint MCP still times out - persevere.)"
-x,Visualize,300,Dates are where the risk hides. Do the math from today and let red mean 'now'. (One SharePoint call - keep it lean.)
+13,Visualize,100,"If at first you don't succeed try again. Then your courage should appear, For if you will persevere, You will conquer, never fear; Try, try again. (Sharepoint MCP times out frequently)"
+14,Visualize,200,"Vague prompts will usually give you vague/default results."
+15,Visualize,300,"Stating your high level goals ahead of your more specific instructions give the AI context to tailor results to your need"
 x,Productionalize,100,"Turn on Plan Mode (Shift+Tab), read the plan it proposes, then approve it to run. Real work fetches data once and reuses the local copy."
 x,Productionalize,200,"Plan first, review, then let it build. The prize is a reusable tool, not a one-off answer."
 x,Productionalize,300,"Plan it, review the steps, then run. Python can serve a folder locally on localhost - no cloud, no deploy, nothing leaves your laptop."
