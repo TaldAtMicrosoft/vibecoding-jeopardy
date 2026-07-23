@@ -588,6 +588,28 @@ body.is-modal-open {
   gap: 10px;
 }
 
+.tips-card__next-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.tips-card__next-label {
+  color: var(--jeop-gold);
+  font-family: var(--font-clue);
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: right;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.7);
+}
+
+.tips-card__next-label:empty {
+  display: none;
+}
+
 .tips-card__next {
   border: 2px solid var(--jeop-gold);
   border-radius: var(--radius);

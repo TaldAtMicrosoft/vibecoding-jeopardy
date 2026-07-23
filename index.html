@@ -14,7 +14,7 @@
   </script>
   <link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20260720e">
+  <link rel="stylesheet" href="styles.css?v=20260723a">
   <script>
     if (document.fonts && document.fonts.load) {
       document.fonts.load("400 1rem Anton");
@@ -85,7 +85,10 @@
       <div class="tips-card__footer"></div>
       <div class="tips-card__nav">
         <button class="tips-card__prev" type="button" title="Previous tip" aria-label="Previous tip">&larr;</button>
-        <button class="tips-card__next" type="button">Next tip &rarr;</button>
+        <div class="tips-card__next-group">
+          <div class="tips-card__next-label"></div>
+          <button class="tips-card__next" type="button">Next tip &rarr;</button>
+        </div>
       </div>
     </aside>
 
@@ -112,6 +115,6 @@
     </div>
   </template>
 
-  <script src="script.js?v=20260720e"></script>
+  <script src="script.js?v=20260723a"></script>
 </body>
 </html>

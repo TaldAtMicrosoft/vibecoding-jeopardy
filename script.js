@@ -1,7 +1,7 @@
 const CSV_PATH = "data/cards.csv";
 // Bump on each deploy (keep in sync with the ?v= on styles.css/script.js in
 // index.html) so browsers fetch fresh data files instead of a cached copy.
-const ASSET_VERSION = "20260720e";
+const ASSET_VERSION = "20260723a";
 const STAGES = ["points", "question", "answer"];
 const HIDDEN_POINT_VALUE = 600;
 // Categories present in the data but intentionally not playable in the UI yet.
@@ -377,16 +377,26 @@ async function loadTips() {
 
     const contentEl = tipsCard.querySelector(".tips-card__content");
     const footerEl = tipsCard.querySelector(".tips-card__footer");
+    const nextLabelEl = tipsCard.querySelector(".tips-card__next-label");
     const nextButton = tipsCard.querySelector(".tips-card__next");
     const prevButton = tipsCard.querySelector(".tips-card__prev");
     const maximizeButton = tipsCard.querySelector(".card-maximize");
     const closeButton = tipsCard.querySelector(".card-close");
     let index = 0;
 
+    const labelFor = (tip) => `${tip.category} - ${tip.points}`;
+
     const showTip = () => {
       const tip = tips[index];
       contentEl.textContent = tip.content;
-      footerEl.textContent = `${tip.category} - ${tip.points}`;
+      footerEl.textContent = labelFor(tip);
+      if (nextLabelEl) {
+        if (tips.length <= 1) {
+          nextLabelEl.textContent = "";
+        } else {
+          nextLabelEl.textContent = labelFor(tips[(index + 1) % tips.length]);
+        }
+      }
     };
 
     // Let a board card's "?" button jump to its first tip and maximize.
