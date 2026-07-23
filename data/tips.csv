@@ -21,3 +21,6 @@ index,category,points,content
 20,Productionalize,200,"Tests are a must have for real engineering systems and for citizen developers for the same reason - you don't have time to manually test after every little change."
 21,Productionalize,200,"Tests vs Evaluations (evals): Tests are code that is strict and checks known things with a definitive answer, evals are driven by the LLM and can be more loose or up to interpretation."
 22,Productionalize,300,"Take everything we learned and make the most robust version of our demo - and add Intelligence on top of it!"
+23,Build Me!,100,"A simple 'one shot' prompt can be surprisingly powerful - especially to ship v1 of your first app."
+24,Build Me!,200,"Use the power of Plan mode (or specs) to work with your agent on more advanced apps. It's just like sitting down with an engineer to describe your app - minus the smell."
+25,Build Me!,300,"Go beyond basic asks and demand quality - when you want highly available and resilient apps with good documentation, just ask for it."
